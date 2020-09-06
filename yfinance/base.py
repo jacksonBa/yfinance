@@ -283,11 +283,11 @@ class TickerBase():
         url = "{}/{}/holders".format(self._scrape_url, self.ticker)
         holders = _pd.read_html(url)
         self._major_holders = holders[0]
-        self._institutional_holders = holders[1]
-        if 'Date Reported' in self._institutional_holders:
+        self._institutional_holders = holders[1] if len(holders) > 1 else None
+        if self._institutional_holders is not None and 'Date Reported' in self._institutional_holders:
             self._institutional_holders['Date Reported'] = _pd.to_datetime(
                 self._institutional_holders['Date Reported'])
-        if '% Out' in self._institutional_holders:
+        if self._institutional_holders is not None and '% Out' in self._institutional_holders:
             self._institutional_holders['% Out'] = self._institutional_holders[
                 '% Out'].str.replace('%', '').astype(float)/100
 
@@ -351,7 +351,8 @@ class TickerBase():
             pass
 
         # get fundamentals
-        data = utils.get_json(url+'/financials', proxy)
+        url = "{}/{}/financials".format(self._scrape_url, self.ticker)
+        data = utils.get_json(url, proxy)
 
         # generic patterns
         for key in (
@@ -504,7 +505,7 @@ class TickerBase():
         search_str = '"{}|'.format(ticker)
         if search_str not in data:
             if q.lower() in data.lower():
-                search_str = '"|'
+                search_str = '"|'.format(ticker)
                 if search_str not in data:
                     self._isin = '-'
                     return self._isin
