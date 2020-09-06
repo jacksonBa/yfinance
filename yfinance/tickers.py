@@ -48,12 +48,15 @@ class Tickers():
         self.symbols = [ticker.upper() for ticker in tickers]
         ticker_objects = {}
 
+        i = 0
         for ticker in self.symbols:
-            ticker_objects[ticker] = Ticker(ticker)
+            ticker_objects[i] = Ticker(ticker)
+            i += 1
 
-        self.tickers = _namedtuple(
-            "Tickers", ticker_objects.keys(), rename=True
-        )(*ticker_objects.values())
+        self.tickers = ticker_objects
+        # self.tickers = _namedtuple(
+        #     "Tickers", ticker_objects.keys(), rename=True
+        # )(*ticker_objects.values())
 
     def history(self, period="1mo", interval="1d",
                 start=None, end=None, prepost=False,
