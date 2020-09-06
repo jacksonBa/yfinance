@@ -289,7 +289,7 @@ class TickerBase():
                 self._institutional_holders['Date Reported'])
         if self._institutional_holders is not None and '% Out' in self._institutional_holders:
             self._institutional_holders['% Out'] = self._institutional_holders[
-                '% Out'].str.replace('%', '').astype(float)/100
+                                                       '% Out'].str.replace('%', '').astype(float) / 100
 
         # sustainability
         d = {}
@@ -355,19 +355,22 @@ class TickerBase():
         data = utils.get_json(url, proxy)
 
         # generic patterns
-        for key in (
-            (self._cashflow, 'cashflowStatement', 'cashflowStatements'),
-            (self._balancesheet, 'balanceSheet', 'balanceSheetStatements'),
-            (self._financials, 'incomeStatement', 'incomeStatementHistory')
-        ):
+        try:
+            for key in (
+                    (self._cashflow, 'cashflowStatement', 'cashflowStatements'),
+                    (self._balancesheet, 'balanceSheet', 'balanceSheetStatements'),
+                    (self._financials, 'incomeStatement', 'incomeStatementHistory')
+            ):
 
-            item = key[1] + 'History'
-            if isinstance(data.get(item), dict):
-                key[0]['yearly'] = cleanup(data[item][key[2]])
+                item = key[1] + 'History'
+                if isinstance(data.get(item), dict):
+                    key[0]['yearly'] = cleanup(data[item][key[2]])
 
-            item = key[1]+'HistoryQuarterly'
-            if isinstance(data.get(item), dict):
-                key[0]['quarterly'] = cleanup(data[item][key[2]])
+                item = key[1] + 'HistoryQuarterly'
+                if isinstance(data.get(item), dict):
+                    key[0]['quarterly'] = cleanup(data[item][key[2]])
+        except Exception:
+            pass
 
         # earnings
         if isinstance(data.get('earnings'), dict):
@@ -499,7 +502,7 @@ class TickerBase():
 
         url = 'https://markets.businessinsider.com/ajax/' \
               'SearchController_Suggest?max_results=25&query=%s' \
-            % urlencode(q)
+              % urlencode(q)
         data = _requests.get(url=url, proxies=proxy).text
 
         search_str = '"{}|'.format(ticker)
